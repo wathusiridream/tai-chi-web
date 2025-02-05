@@ -1,5 +1,9 @@
 flask
 tensorflow
+keras
 numpy
 opencv-python
 werkzeug
+mediapipe
+fastdtw
+scipy
