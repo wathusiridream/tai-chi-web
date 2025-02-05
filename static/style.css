@@ -1,0 +1,128 @@
+/* 🌟 Global Style */
+body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    margin: 20px;
+    background-color: #f9f9f9;
+    color: #333;
+}
+
+/* 🌟 Video Styling */
+video {
+    border: 2px solid #333;
+    border-radius: 10px;
+    width: 50%;
+    max-width: 600px;
+    height: auto;
+    margin: 20px auto;
+    display: block;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* 🌟 Button Styling */
+button, .custom-button {
+    padding: 12px 20px;
+    background-color: #007bff;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    width: 200px;
+}
+
+button:hover, .custom-button:hover {
+    background-color: #0056b3;
+}
+
+/* 🌟 Label Styling */
+.custom-file-label {
+    display: inline-block;
+    padding: 12px 20px;
+    background-color: #6c757d;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+}
+
+.custom-file-label:hover {
+    background-color: #5a6268;
+}
+
+/* 🌟 Score Container */
+#score-container {
+    border: 1px solid #ccc;
+    padding: 20px;
+    border-radius: 10px;
+    background-color: #fff;
+    margin: 20px auto;
+    width: 300px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* 🌟 Result Styling */
+#result {
+    font-size: 18px;
+    font-weight: bold;
+    margin-top: 20px;
+}
+
+/* 🌟 Pop-up Styling */
+#popup-container {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    width: 300px;
+    text-align: center;
+    font-size: 18px;
+}
+
+#overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+}
+
+/* 🌟 Responsive Design */
+@media screen and (max-width: 768px) {
+    body {
+        margin: 10px;
+        font-size: 16px;
+    }
+
+    video {
+        width: 90%;
+        border-radius: 5px;
+    }
+
+    button, .custom-button, .custom-file-label {
+        width: 90%; /* ปุ่มเต็มจอในมือถือ */
+        padding: 15px;
+        font-size: 14px;
+    }
+
+    #score-container {
+        width: 90%;
+    }
+
+    #popup-container {
+        width: 90%;
+    }
+}

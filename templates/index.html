@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tai Chi Similarity Measure</title>
+</head>
+<body>
+    <h2>Test Similarity of Tai Chi</h2>
+    <video id="video" autoplay></video>
+
+    <div id="video-container" style="text-align: center;">
+        <div style="display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 10px;">
+            <button id="recordBtn" onclick="toggleRecording()" class="custom-button">Start Recording</button>
+            <span>or</span>
+            <label for="file-input" class="custom-button">Choose File</label>
+            <input type="file" id="file-input" accept="video/*" style="display: none;">
+        </div>
+        <p id="file-name"></p>
+        <button id="uploadBtn" onclick="uploadRecordedVideo()" disabled class="custom-button">Test Similarity</button>
+    </div>
+    
+    <hr>
+
+    <!-- 📊 แสดงผลลัพธ์ -->
+    <h3>Similarity Score</h3>
+    <div id="score-container" style="border: 1px solid #000; padding: 15px; border-radius: 5px; width: 300px; margin: 10px auto; background-color: white;">
+        <p id="accuracy"> 0%</p>
+        <!--<p>DTW Distance: <span id="dtw-distance">-</span></p>-->
+        <!--<p>Matched Frames: <span id="matched-frames">-</span></p>-->
+    </div>
+    <div id="result" style="text-align: center; margin-top: 10px;"></div>
+
+    <!-- Pop-up สำหรับการแจ้งเตือน -->
+    <div id="popup-container" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background-color: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); z-index: 1000; text-align: center;">
+        <p id="popup-message">กำลังประมวลผล...</p>
+    </div>
+    <div id="overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); z-index: 999;"></div>
+
+    <script>
+        let isRecording = false;
+        let mediaRecorder;
+        let recordedChunks = [];
+        let recordedBlob = null;
+    
+        async function toggleRecording() {
+            const recordBtn = document.getElementById("recordBtn");
+            const videoElement = document.getElementById("video");
+    
+            if (!isRecording) {
+                // เริ่มบันทึกวิดีโอ
+                let stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                videoElement.srcObject = stream;
+    
+                mediaRecorder = new MediaRecorder(stream, { mimeType: 'video/webm; codecs=vp9' });
+                recordedChunks = []; // เคลียร์ข้อมูลเก่าก่อนเริ่มใหม่
+    
+                mediaRecorder.ondataavailable = event => recordedChunks.push(event.data);
+                mediaRecorder.onstop = () => {
+                    // ปิดกล้อง
+                    stream.getTracks().forEach(track => track.stop());
+    
+                    // สร้าง Blob และแสดงวิดีโอที่บันทึก
+                    recordedBlob = new Blob(recordedChunks, { type: "video/webm" });
+                    let videoURL = URL.createObjectURL(recordedBlob);
+                    videoElement.srcObject = null;
+                    videoElement.src = videoURL;
+                    videoElement.controls = true;
+                    videoElement.loop = true;
+                    videoElement.play();
+    
+                    // เปิดใช้งานปุ่มอัปโหลด
+                    document.getElementById("uploadBtn").disabled = false;
+                };
+    
+                mediaRecorder.start();
+                recordBtn.textContent = "Stop Recording";
+                recordBtn.style.backgroundColor = "red";
+                isRecording = true;
+            } else {
+                // หยุดบันทึก
+                mediaRecorder.stop();
+                recordBtn.textContent = "Start Recording";
+                recordBtn.style.backgroundColor = "";
+                isRecording = false;
+            }
+        }
+    
+        // 📂 เล่นวิดีโอที่เลือกจากไฟล์
+        document.getElementById("file-input").addEventListener("change", function(event) {
+            let file = event.target.files[0];
+            if (file) {
+                let videoElement = document.getElementById("video");
+                let videoURL = URL.createObjectURL(file);
+                videoElement.srcObject = null;
+                videoElement.src = videoURL;
+                videoElement.controls = true;
+                videoElement.loop = true;
+                videoElement.play();
+    
+                document.getElementById("file-name").textContent = ` Selected File: ${file.name}`;
+    
+                // เปิดใช้งานปุ่มอัปโหลด
+                document.getElementById("uploadBtn").disabled = false;
+                recordedBlob = file; // กำหนดให้ไฟล์ที่เลือกเป็นวิดีโอที่อัปโหลดได้
+            }
+        });
+    
+        // 📤 อัปโหลดวิดีโอที่บันทึก
+        async function uploadRecordedVideo() {
+            if (!recordedBlob) {
+                alert("ไม่มีวิดีโอ กรุณาบันทึกหรือเลือกวิดีโอก่อน");
+                return;
+            }
+    
+            let formData = new FormData();
+            formData.append("file", recordedBlob, recordedBlob.name || "recorded_video.webm");
+    
+            await sendVideoToServer(formData);
+        }
+    
+        function showPopup(message) {
+            const popupContainer = document.getElementById("popup-container");
+            const overlay = document.getElementById("overlay");
+            const popupMessage = document.getElementById("popup-message");
+
+            // ตั้งข้อความ Pop-up
+            popupMessage.textContent = message;
+
+            // แสดง Pop-up และ Overlay
+            popupContainer.style.display = "block";
+            overlay.style.display = "block";
+        }
+
+        function hidePopup() {
+            const popupContainer = document.getElementById("popup-container");
+            const overlay = document.getElementById("overlay");
+
+            // ซ่อน Pop-up และ Overlay
+            popupContainer.style.display = "none";
+            overlay.style.display = "none";
+        }
+
+        // 📡 ส่งวิดีโอไปยัง Flask API
+        async function sendVideoToServer(formData) {
+            showPopup("กำลังประมวลผล...");
+
+            try {
+                let response = await fetch("/predict", {
+                    method: "POST",
+                    body: formData
+                });
+
+                let result = await response.json();
+
+                if (response.ok) {
+                    // อัปเดตผลลัพธ์ใน UI
+                    document.getElementById("accuracy").innerText = `${result.overall_matching_accuracy.toFixed(2)}%`;
+                    //document.getElementById("dtw-distance").innerText = result.dtw_distance !== undefined ? result.dtw_distance.toFixed(2) : "-";
+                    //document.getElementById("matched-frames").innerText = result.matched_frames !== undefined ? `${result.matched_frames} / ${result.total_frames_video1}` : "-";
+
+                    // แสดงข้อความสำเร็จใน Pop-up
+                    showPopup("ประมวลผลเสร็จสิ้น!");
+                    setTimeout(hidePopup, 2000); // ปิด Pop-up หลัง 2 วินาที
+                } else {
+                    showPopup(`❌ Error: ${result.error}`);
+                    setTimeout(hidePopup, 2000);
+                }
+            } catch (error) {
+                showPopup(`❌ เกิดข้อผิดพลาด: ${error.message}`);
+                setTimeout(hidePopup, 2000);
+            }
+        }
+    </script>
+</body>
+</html>
