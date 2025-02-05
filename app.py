@@ -7,7 +7,7 @@ from werkzeug.utils import secure_filename
 from model import load_custom_model, process_video_for_web , calculate_matching_accuracy_dtw
 import time
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='static')
 
 UPLOAD_FOLDER = "uploads"
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
