@@ -1,22 +1,53 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+
 /* 🌟 Global Style */
 body {
-    font-family: Arial, sans-serif;
+    font-family: 'Poppins', sans-serif;
     text-align: center;
-    margin: 20px;
-    background-color: #f9f9f9;
+    background: linear-gradient(to bottom, #14213d, #023e8a, #0096c7, #8ecae6 , #ffffff);
+    background-size: cover;
+    background-repeat: no-repeat;
+    height: 100vh;
+    margin: 0;
     color: #333;
+}
+
+h2 {
+    margin: 10px;
+    font-size: 1.8rem; /* เพิ่มขนาดให้ชัดขึ้น */
+    font-weight: bold; /* ตัวอักษรหนา */
+    color: black; /* เปลี่ยนสีข้อความเป็นสีขาว */
+    text-align: center; /* จัดกึ่งกลางข้อความ */
+    text-transform: uppercase; /* แปลงเป็นตัวพิมพ์ใหญ่ */
+    letter-spacing: 2px; /* เพิ่มช่องไฟระหว่างตัวอักษร */
+    
+    -webkit-text-stroke: 1.5px white; /* เส้นขอบสีเหลือง */
+    text-shadow: 2px 2px 5px black; /* เพิ่มเงาให้ข้อความ */
+}
+
+
+
+h3 {
+    margin: 5px;
+    font-size: 1rem; /* เพิ่มขนาดให้ชัดขึ้น */
+    font-weight: bold; /* ตัวอักษรหนา */
+    color: black; /* ใช้สีน้ำเงิน */
+    text-align: center; /* จัดกึ่งกลาง */
+    text-transform: uppercase; /* แปลงเป็นตัวพิมพ์ใหญ่ */
+    letter-spacing: 2px; /* เพิ่มช่องไฟระหว่างตัวอักษร */
 }
 
 /* 🌟 Video Styling */
 video {
     border: 2px solid #333;
     border-radius: 10px;
-    width: 50%;
+    width: auto;
     max-width: 600px;
-    height: auto;
+    height: 45%;
     margin: 20px auto;
     display: block;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    background-color: white
 }
 
 /* 🌟 Button Styling */
@@ -30,11 +61,21 @@ button, .custom-button {
     cursor: pointer;
     transition: background-color 0.3s ease;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    width: 200px;
+    width: 170px;
+    
 }
 
-button:hover, .custom-button:hover {
-    background-color: #0056b3;
+
+/* 🌟 Button States */
+.custom-button.disabled {
+    background-color: #d9d9d9;
+    cursor: not-allowed; /* เปลี่ยนเคอร์เซอร์เป็น "ไม่อนุญาต" */
+    box-shadow: none; /* เอาเงาออก */
+}
+
+.custom-button.enabled {
+    background-color: green;
+    cursor: pointer;
 }
 
 /* 🌟 Label Styling */
@@ -56,13 +97,19 @@ button:hover, .custom-button:hover {
 
 /* 🌟 Score Container */
 #score-container {
-    border: 1px solid #ccc;
-    padding: 20px;
-    border-radius: 10px;
-    background-color: #fff;
-    margin: 20px auto;
-    width: 300px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border: 1px solid #000;
+    padding: 15px;
+    border-radius: 5px;
+    width: 100%; /* ตั้งค่าให้เต็มความกว้าง */
+    max-width: 70px; /* จำกัดความกว้างสูงสุด */
+    margin: 10px auto; /* จัดกึ่งกลาง */
+    background-color: white;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* เพิ่มเงา */
+    text-align: center;
+    height: 20px; /* ตั้งค่าความสูง */
+    display: flex; /* ใช้ Flexbox */
+    align-items: center; /* จัดข้อความให้ตรงกลางในแนวตั้ง */
+    justify-content: center; /* จัดข้อความให้อยู่ตรงกลางในแนวนอน */
 }
 
 /* 🌟 Result Styling */
@@ -79,14 +126,45 @@ button:hover, .custom-button:hover {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    background-color: #fff;
+    background-color: white;
     padding: 20px;
     border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
     z-index: 1000;
-    width: 300px;
     text-align: center;
-    font-size: 18px;
+    width: 300px;
+}
+
+#popup-message {
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+/* 🎨 สร้าง Progress Bar */
+.progress-container {
+    width: 100%;
+    background-color: #e0e0e0;
+    border-radius: 8px;
+    overflow: hidden;
+    height: 20px;
+    margin-top: 10px;
+    position: relative;
+}
+
+.progress-bar {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #4caf50, #8bc34a);
+    border-radius: 8px;
+    transition: width 0.3s ease-in-out;
+}
+
+#progress-text {
+    font-size: 14px;
+    margin-top: 5px;
+    font-weight: bold;
+    color: #333;
 }
 
 #overlay {
@@ -113,13 +191,14 @@ button:hover, .custom-button:hover {
     }
 
     button, .custom-button, .custom-file-label {
-        width: 90%; /* ปุ่มเต็มจอในมือถือ */
+        width: 60%; /* ปุ่มเต็มจอในมือถือ */
         padding: 15px;
         font-size: 14px;
     }
 
     #score-container {
-        width: 90%;
+        width: 90%; /* ใช้ 90% ของความกว้างหน้าจอในมือถือ */
+        padding: 20px; /* เพิ่ม padding เพื่อการแสดงผลที่ดีขึ้น */
     }
 
     #popup-container {

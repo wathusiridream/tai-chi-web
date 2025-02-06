@@ -9,6 +9,7 @@
 </head>
 <body>
     <h2>Test Similarity of Tai Chi</h2>
+
     <video id="video" autoplay></video>
 
     <div id="video-container" style="text-align: center;">
@@ -16,71 +17,121 @@
             <button id="recordBtn" onclick="toggleRecording()" class="custom-button">Start Recording</button>
             <span>or</span>
             <label for="file-input" class="custom-button">Choose File</label>
-            <input type="file" id="file-input" accept="video/*" style="display: none;">
+            <input type="file" id="file-input" accept="video/*" style="display: none;" onchange="handleFileInput(event)">
         </div>
         <p id="file-name"></p>
-        <button id="uploadBtn" onclick="uploadRecordedVideo()" disabled class="custom-button">Test Similarity</button>
+        <button id="uploadBtn" onclick="uploadRecordedVideo()" class="custom-button disabled" disabled>Test Similarity</button>
     </div>
     
     <hr>
-
-    <!-- 📊 แสดงผลลัพธ์ -->
     <h3>Similarity Score</h3>
-    <div id="score-container" style="border: 1px solid #000; padding: 15px; border-radius: 5px; width: 300px; margin: 10px auto; background-color: white;">
-        <p id="accuracy"> 0%</p>
-        <!--<p>DTW Distance: <span id="dtw-distance">-</span></p>-->
-        <!--<p>Matched Frames: <span id="matched-frames">-</span></p>-->
+    <div id="score-container">
+        <p id="accuracy" style="text-align: center;"> 0%</p>
     </div>
     <div id="result" style="text-align: center; margin-top: 10px;"></div>
 
-    <!-- Pop-up สำหรับการแจ้งเตือน -->
-    <div id="popup-container" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background-color: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); z-index: 1000; text-align: center;">
+    <div id="popup-container">
         <p id="popup-message">กำลังประมวลผล...</p>
+        <div class="progress-container">
+            <div class="progress-bar" id="progress-bar"></div>
+        </div>
+        <p id="progress-text">0%</p>
     </div>
-    <div id="overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); z-index: 999;"></div>
+    <div id="overlay"></div>
 
     <script>
         let isRecording = false;
         let mediaRecorder;
         let recordedChunks = [];
         let recordedBlob = null;
+        let stream = null;
+    
+        function resetData() {
+            // รีเซ็ตชื่อไฟล์
+            document.getElementById("file-name").textContent = "";
+    
+            // รีเซ็ตวิดีโอ
+            const videoElement = document.getElementById("video");
+            videoElement.srcObject = null;
+            videoElement.src = "";
+            videoElement.controls = false;
+    
+            // รีเซ็ตความแม่นยำ (accuracy)
+            document.getElementById("accuracy").textContent = "0%";
+    
+            // ปิดปุ่ม Test Similarity
+            const uploadBtn = document.getElementById("uploadBtn");
+            uploadBtn.disabled = true;
+            uploadBtn.classList.add("disabled");
+            uploadBtn.classList.remove("enabled");
+    
+            // รีเซ็ตข้อมูล Blob
+            recordedBlob = null;
+    
+            console.log("All data has been reset.");
+        }
     
         async function toggleRecording() {
             const recordBtn = document.getElementById("recordBtn");
             const videoElement = document.getElementById("video");
+            const uploadBtn = document.getElementById("uploadBtn");
     
             if (!isRecording) {
-                // เริ่มบันทึกวิดีโอ
-                let stream = await navigator.mediaDevices.getUserMedia({ video: true });
-                videoElement.srcObject = stream;
+                try {
+                    console.log("Requesting camera access...");
+                    stream = await navigator.mediaDevices.getUserMedia({ video: true });
     
-                mediaRecorder = new MediaRecorder(stream, { mimeType: 'video/webm; codecs=vp9' });
-                recordedChunks = []; // เคลียร์ข้อมูลเก่าก่อนเริ่มใหม่
+                    if (!stream) {
+                        alert("ไม่สามารถเปิดกล้องได้! กรุณาตรวจสอบสิทธิ์ของเบราว์เซอร์.");
+                        return;
+                    }
     
-                mediaRecorder.ondataavailable = event => recordedChunks.push(event.data);
-                mediaRecorder.onstop = () => {
-                    // ปิดกล้อง
-                    stream.getTracks().forEach(track => track.stop());
+                    resetData(); // เรียก resetData เมื่อเริ่มบันทึกใหม่
+                    videoElement.srcObject = stream;
     
-                    // สร้าง Blob และแสดงวิดีโอที่บันทึก
-                    recordedBlob = new Blob(recordedChunks, { type: "video/webm" });
-                    let videoURL = URL.createObjectURL(recordedBlob);
-                    videoElement.srcObject = null;
-                    videoElement.src = videoURL;
-                    videoElement.controls = true;
-                    videoElement.loop = true;
-                    videoElement.play();
+                    mediaRecorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
+                    recordedChunks = [];
     
-                    // เปิดใช้งานปุ่มอัปโหลด
-                    document.getElementById("uploadBtn").disabled = false;
-                };
+                    mediaRecorder.ondataavailable = (event) => {
+                        if (event.data.size > 0) recordedChunks.push(event.data);
+                    };
     
-                mediaRecorder.start();
-                recordBtn.textContent = "Stop Recording";
-                recordBtn.style.backgroundColor = "red";
-                isRecording = true;
+                    mediaRecorder.onstop = () => {
+                        console.log("Recording stopped.");
+                        stream.getTracks().forEach((track) => track.stop());
+    
+                        if (recordedChunks.length === 0) {
+                            alert("เกิดข้อผิดพลาดในการบันทึกวิดีโอ");
+                            return;
+                        }
+    
+                        recordedBlob = new Blob(recordedChunks, { type: "video/webm" });
+                        const videoURL = URL.createObjectURL(recordedBlob);
+    
+                        videoElement.srcObject = null;
+                        videoElement.src = videoURL;
+                        videoElement.controls = true;
+                        videoElement.loop = true;
+                        videoElement.play();
+    
+                        console.log("Video recorded successfully.");
+                        uploadBtn.disabled = false;
+                        uploadBtn.classList.remove("disabled");
+                        uploadBtn.classList.add("enabled");
+                    };
+    
+                    console.log("Starting recording...");
+                    mediaRecorder.start();
+                    recordBtn.textContent = "Stop Recording";
+                    recordBtn.style.backgroundColor = "red";
+                    isRecording = true;
+    
+                } catch (error) {
+                    console.error("Error accessing webcam: ", error);
+                    alert("ไม่สามารถเข้าถึงกล้องได้! กรุณาตรวจสอบการตั้งค่าของเบราว์เซอร์.");
+                }
             } else {
-                // หยุดบันทึก
+                console.log("Stopping recording...");
                 mediaRecorder.stop();
                 recordBtn.textContent = "Start Recording";
                 recordBtn.style.backgroundColor = "";
@@ -88,27 +139,29 @@
             }
         }
     
-        // 📂 เล่นวิดีโอที่เลือกจากไฟล์
-        document.getElementById("file-input").addEventListener("change", function(event) {
+        function handleFileInput(event) {
             let file = event.target.files[0];
+            const videoElement = document.getElementById("video");
+            const fileNameElement = document.getElementById("file-name");
+            const uploadBtn = document.getElementById("uploadBtn");
+    
             if (file) {
-                let videoElement = document.getElementById("video");
-                let videoURL = URL.createObjectURL(file);
-                videoElement.srcObject = null;
+                resetData(); // รีเซ็ตข้อมูลทุกครั้งเมื่อเลือกไฟล์ใหม่
+    
+                const videoURL = URL.createObjectURL(file);
                 videoElement.src = videoURL;
                 videoElement.controls = true;
-                videoElement.loop = true;
                 videoElement.play();
     
-                document.getElementById("file-name").textContent = ` Selected File: ${file.name}`;
+                fileNameElement.textContent = `Selected File: ${file.name}`;
+                recordedBlob = file;
     
-                // เปิดใช้งานปุ่มอัปโหลด
-                document.getElementById("uploadBtn").disabled = false;
-                recordedBlob = file; // กำหนดให้ไฟล์ที่เลือกเป็นวิดีโอที่อัปโหลดได้
+                uploadBtn.disabled = false;
+                uploadBtn.classList.remove("disabled");
+                uploadBtn.classList.add("enabled");
             }
-        });
+        }
     
-        // 📤 อัปโหลดวิดีโอที่บันทึก
         async function uploadRecordedVideo() {
             if (!recordedBlob) {
                 alert("ไม่มีวิดีโอ กรุณาบันทึกหรือเลือกวิดีโอก่อน");
@@ -122,57 +175,68 @@
         }
     
         function showPopup(message) {
-            const popupContainer = document.getElementById("popup-container");
-            const overlay = document.getElementById("overlay");
-            const popupMessage = document.getElementById("popup-message");
-
-            // ตั้งข้อความ Pop-up
-            popupMessage.textContent = message;
-
-            // แสดง Pop-up และ Overlay
-            popupContainer.style.display = "block";
-            overlay.style.display = "block";
+            document.getElementById("popup-message").textContent = message;
+            document.getElementById("popup-container").style.display = "block";
+            document.getElementById("overlay").style.display = "block";
+    
+            updateProgressBar(0);
         }
-
+    
         function hidePopup() {
-            const popupContainer = document.getElementById("popup-container");
-            const overlay = document.getElementById("overlay");
-
-            // ซ่อน Pop-up และ Overlay
-            popupContainer.style.display = "none";
-            overlay.style.display = "none";
+            document.getElementById("popup-container").style.display = "none";
+            document.getElementById("overlay").style.display = "none";
+    
+            updateProgressBar(0);
         }
-
-        // 📡 ส่งวิดีโอไปยัง Flask API
+    
+        function updateProgressBar(progress) {
+            const progressBar = document.getElementById("progress-bar");
+            const progressText = document.getElementById("progress-text");
+    
+            progressBar.style.width = `${progress}%`;
+            progressText.textContent = `${progress}%`;
+        }
+    
         async function sendVideoToServer(formData) {
             showPopup("กำลังประมวลผล...");
-
+    
+            let progress = 0;
+            let progressInterval = setInterval(() => {
+                if (progress < 90) {
+                    progress += Math.floor(Math.random() * 10) + 5;
+                    if (progress > 90) progress = 90;
+                    updateProgressBar(progress);
+                }
+            }, 500);
+    
             try {
                 let response = await fetch("/predict", {
                     method: "POST",
                     body: formData
                 });
-
+    
                 let result = await response.json();
-
+    
+                clearInterval(progressInterval);
+                updateProgressBar(100);
+    
                 if (response.ok) {
-                    // อัปเดตผลลัพธ์ใน UI
                     document.getElementById("accuracy").innerText = `${result.overall_matching_accuracy.toFixed(2)}%`;
-                    //document.getElementById("dtw-distance").innerText = result.dtw_distance !== undefined ? result.dtw_distance.toFixed(2) : "-";
-                    //document.getElementById("matched-frames").innerText = result.matched_frames !== undefined ? `${result.matched_frames} / ${result.total_frames_video1}` : "-";
-
-                    // แสดงข้อความสำเร็จใน Pop-up
-                    showPopup("ประมวลผลเสร็จสิ้น!");
-                    setTimeout(hidePopup, 2000); // ปิด Pop-up หลัง 2 วินาที
+    
+                    setTimeout(() => {
+                        hidePopup();
+                    }, 1000);
                 } else {
                     showPopup(`❌ Error: ${result.error}`);
                     setTimeout(hidePopup, 2000);
                 }
             } catch (error) {
+                clearInterval(progressInterval);
                 showPopup(`❌ เกิดข้อผิดพลาด: ${error.message}`);
                 setTimeout(hidePopup, 2000);
             }
         }
     </script>
+    
 </body>
 </html>
