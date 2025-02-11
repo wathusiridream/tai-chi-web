@@ -10,6 +10,8 @@ import time
 app = Flask(__name__, static_folder='static')
 
 UPLOAD_FOLDER = "uploads"
+ALLOWED_EXTENSIONS = {'mp4', 'webm', 'mov'}
+
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
@@ -32,6 +34,7 @@ def index():
     return render_template("index.html")
 
 @app.route("/predict", methods=["POST"])
+
 def predict():
     if "file" not in request.files:
         return jsonify({"error": "No file uploaded"}), 400

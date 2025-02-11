@@ -422,7 +422,7 @@ def calculate_matching_accuracy_dtw(embs1, embs2):
     }
 
 
-REFERENCE_VIDEO_PATH = "original_20231208_1639-視頻剪切-20240514-230217-000033.mp4"
+REFERENCE_VIDEO_PATH = "Pose1_original_20231124_1334.mp4"
 REFERENCE_EMBEDDING_PATH = "embeddings/reference.npy"
 
 def generate_reference_embedding():

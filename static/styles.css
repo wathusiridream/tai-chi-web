@@ -177,6 +177,54 @@ button, .custom-button {
     background-color: rgba(0, 0, 0, 0.5);
     z-index: 999;
 }
+.modal {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    z-index: 1001;
+    text-align: center;
+    min-width: 300px;
+}
+
+.modal h4 {
+    margin-top: 0;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+.modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+}
+
+.camera-option {
+    padding: 10px 20px;
+    margin: 5px;
+    border: none;
+    border-radius: 5px;
+    background-color: #007bff;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    width: 80%;
+    margin-bottom: 10px;
+}
+
+.camera-option:hover {
+    background-color: #0056b3;
+}
 
 /* 🌟 Responsive Design */
 @media screen and (max-width: 768px) {
