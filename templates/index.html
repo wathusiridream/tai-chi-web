@@ -304,7 +304,7 @@
         }
     
         async function sendVideoToServer(formData) {
-            showPopup("กำลังประมวลผล...");
+            showPopup("Please wait for processing...");
 
             let progress = 0;
             let progressInterval = setInterval(() => {
@@ -332,8 +332,8 @@
                         setTimeout(hidePopup, 2000);
                     } else {
                         document.getElementById("accuracy").innerText = `${result.overall_matching_accuracy.toFixed(2)}%`;
-                        showPopup("ประมวลผลสำเร็จ!");
-                        setTimeout(hidePopup, 1000);
+                        showPopup("Successfully!");
+                        setTimeout(hidePopup, 1500);
                     }
                 } else {
                     showPopup("❌ Error: Please ensure that there is a human body in the video.");

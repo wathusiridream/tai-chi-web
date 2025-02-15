@@ -22,10 +22,10 @@ model = load_custom_model("model_segment9.keras")
 # batch size (N)
 # num_step (T)
 # embedding size (d)
-BATCH_SIZE =  2#@param {type:"integer"}
+BATCH_SIZE =  2 #@param {type:"integer"}
 NUM_STEPS = 58 #@param {type:"integer"}
-NUM_CONTEXT_STEPS =  2#@param {type:"integer"}
-CONTEXT_STRIDE =  1#@param {type:"integer"}
+NUM_CONTEXT_STEPS =  2 #@param {type:"integer"}
+CONTEXT_STRIDE =  1 #@param {type:"integer"}
 
 
 
