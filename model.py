@@ -299,6 +299,7 @@ def calculate_matching_accuracy_dtw(embs1, embs2, threshold):
         ]
     }
 '''
+
 def dist_fn(x, y):
   print('function : dist_fn')
   dist = np.sum((x-y)**2)
