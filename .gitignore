@@ -8,17 +8,3 @@ __pycache__/
 *.pyc
 *.pyo
 *.pyd
-
-# Ignore system files
-.DS_Store
-Thumbs.db
-
-# Ignore log and temp files
-*.log
-*.sqlite3
-
-# Ignore VS Code settings
-.vscode/
-
-# Ignore large dependency folders (ถ้ามี)
-node_modules/
